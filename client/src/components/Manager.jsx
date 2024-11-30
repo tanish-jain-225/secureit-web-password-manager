@@ -15,7 +15,7 @@ const Manager = () => {
   const serverType = "http"
 
   const getPasswords = async () => {
-    let req = await fetch(`${serverType}://localhost:${port}/`);
+    let req = await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`);
     let passwords = await req.json();
     setpasswordArray(passwords);
   };
@@ -39,7 +39,7 @@ const Manager = () => {
       const newPassword = { ...form, id: uuidv4() };
       setpasswordArray([...passwordArray, newPassword]);
 
-      await fetch(`${serverType}://localhost:${port}/`, {
+      await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPassword),
@@ -74,7 +74,7 @@ const Manager = () => {
     const passwordToEdit = passwordArray.find((item) => item.id === id);
     setform(passwordToEdit);
     setpasswordArray(passwordArray.filter((item) => item.id !== id));
-    await fetch(`${serverType}://localhost:${port}/`, {
+    await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -86,7 +86,7 @@ const Manager = () => {
     if (c === true) {
       setpasswordArray(passwordArray.filter((item) => item.id !== id));
 
-      await fetch(`${serverType}://localhost:${port}/`, {
+      await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
