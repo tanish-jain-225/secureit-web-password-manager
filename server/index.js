@@ -7,13 +7,7 @@ const app = express();
 const serverType = "http";
 const port = 3000;
 
-app.use(cors(
-  {
-    origin: [""],
-    methods: ["POST", "GET"], 
-    credentials: true
-  }
-));
+app.use(cors());
 
 app.use(bodyparser.json());
 
