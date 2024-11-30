@@ -7,7 +7,13 @@ const app = express();
 const serverType = "http";
 const port = 3000;
 
-app.use(cors());
+app.use(cors(
+  {
+    origin: ["https://deploy-mern-lwhq.vercel.app"],
+    methods: ["POST", "GET"], 
+    credentials: true
+  }
+));
 app.use(bodyparser.json());
 
 // Connection URL
