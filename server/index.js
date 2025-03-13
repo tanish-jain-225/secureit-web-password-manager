@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyparser.json());
 
 // Connection URL
-const url = process.env.MONGO_URI
+const url = process.env.MONGO_URI;
 const client = new MongoClient(url);
 client.connect();
 const dbName = "secureit";
