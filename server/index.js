@@ -1,59 +1,76 @@
+require("dotenv").config();
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const bodyparser = require("body-parser");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
-const serverType = "http";
-const port = 3000;
+const port = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
+app.use(bodyParser.json());
 
-app.use(bodyparser.json());
-
-// Connection URL
-const user = 'tanish-jain-225'
-const pass = 'tanishjain02022005'
-const url = `mongodb+srv://${user}:${pass}@cluster0.578qvco.mongodb.net/`;
-const client = new MongoClient(url);
-client.connect();
+// MongoDB Connection
+const mongoURI = process.env.MONGO_URI;
 const dbName = "secureit";
-const passwords = "passwords"
+const collectionName = "passwords";
 
-// get all passwords
+let db, collection;
+
+async function connectDB() {
+  try {
+    const client = new MongoClient(mongoURI);
+    await client.connect();
+    console.log("Connected to MongoDB");
+    db = client.db(dbName);
+    collection = db.collection(collectionName);
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+  }
+}
+
+connectDB();
+
+// Get all passwords
 app.get("/", async (req, res) => {
-  // mongo process
-  const db = client.db(dbName);
-  const collection = db.collection(passwords);
-  const findResult = await collection.find({}).toArray();
-  res.json(findResult);
+  try {
+    const passwords = await collection.find({}).toArray();
+    res.json(passwords);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch passwords" });
+  }
 });
 
-// post password by save
+// Save a new password
 app.post("/", async (req, res) => {
-  // mongo process
-  const password = req.body;
-  const db = client.db(dbName);
-  const collection = db.collection(passwords);
-  const findResult = await collection.insertOne(password);
-  res.send({ success: true, result: findResult });
+  try {
+    const password = req.body;
+    if (!password || !password.name || !password.value) {
+      return res.status(400).json({ error: "Invalid password data" });
+    }
+    const result = await collection.insertOne(password);
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save password" });
+  }
 });
 
-// delete a password
+// Delete a password
 app.delete("/", async (req, res) => {
-  // mongo process
-  const password = req.body;
-  const db = client.db(dbName);
-  const collection = db.collection(passwords);
-  const findResult = await collection.deleteOne(password);
-  res.send({ success: true, result: findResult });
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: "Password name is required" });
+    }
+    const result = await collection.deleteOne({ name });
+    res.json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete password" });
+  }
 });
 
-// Listen on port get app
+// Start the server
 app.listen(port, () => {
-  console.log(
-    `App listening on port ${port} -`,
-    `${serverType}://localhost:${port}`
-  );
+  console.log(`Server running on http://localhost:${port}`);
 });
-

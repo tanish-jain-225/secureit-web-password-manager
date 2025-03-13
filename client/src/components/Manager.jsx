@@ -1,6 +1,5 @@
 // Imports 
-import React, { useEffect } from "react";
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,15 +8,16 @@ import "react-toastify/dist/ReactToastify.css";
 const Manager = () => {
   const ref = useRef();
   const passwordRef = useRef();
-  const [form, setform] = useState({ site: "", username: "", password: "" });
-  const [passwordArray, setpasswordArray] = useState([]);
+  const [form, setForm] = useState({ site: "", username: "", password: "" });
+  const [passwordArray, setPasswordArray] = useState([]);
   const port = 3000;
-  const serverType = "http"
+  const serverType = "http";
+  const passwordLink = `https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`;
 
   const getPasswords = async () => {
-    let req = await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`);
+    let req = await fetch(`${passwordLink}`);
     let passwords = await req.json();
-    setpasswordArray(passwords);
+    setPasswordArray(passwords);
   };
 
   useEffect(() => {
@@ -35,20 +35,20 @@ const Manager = () => {
   };
 
   const savePassword = async () => {
-    if (form.site.length > 0 && form.username.length > 0 && form.password.length > 0) {
+    if (form.site && form.username && form.password) {
       const newPassword = { ...form, id: uuidv4() };
-      setpasswordArray([...passwordArray, newPassword]);
+      setPasswordArray([...passwordArray, newPassword]);
 
-      await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
+      await fetch(`${passwordLink}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPassword),
       });
 
-      setform({ site: "", username: "", password: "" });
+      setForm({ site: "", username: "", password: "" });
       toast("Password Saved!", {
         position: "top-right",
-        autoClose: "4000",
+        autoClose: 4000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -59,7 +59,7 @@ const Manager = () => {
     } else {
       toast("Error: Data Not Saved!", {
         position: "top-right",
-        autoClose: "4000",
+        autoClose: 4000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -72,9 +72,9 @@ const Manager = () => {
 
   const editPassword = async (id) => {
     const passwordToEdit = passwordArray.find((item) => item.id === id);
-    setform(passwordToEdit);
-    setpasswordArray(passwordArray.filter((item) => item.id !== id));
-    await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
+    setForm(passwordToEdit);
+    setPasswordArray(passwordArray.filter((item) => item.id !== id));
+    await fetch(`${passwordLink}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -83,10 +83,10 @@ const Manager = () => {
 
   const deletePassword = async (id) => {
     let c = confirm("Do You Really Want To Delete?");
-    if (c === true) {
-      setpasswordArray(passwordArray.filter((item) => item.id !== id));
+    if (c) {
+      setPasswordArray(passwordArray.filter((item) => item.id !== id));
 
-      await fetch(`https://secureit-web-password-manager-api.vercel.app/?vercelToolbarCode=RBtz4XIoXWh-m36`, {
+      await fetch(`${passwordLink}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -94,7 +94,7 @@ const Manager = () => {
 
       toast("Password Deleted!", {
         position: "top-right",
-        autoClose: "4000",
+        autoClose: 4000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -106,14 +106,14 @@ const Manager = () => {
   };
 
   const handleChange = (e) => {
-    setform({ ...form, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const copyText = (text) => {
     navigator.clipboard.writeText(text);
     toast("Copied to clipboard!", {
       position: "top-right",
-      autoClose: "4000",
+      autoClose: 4000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -130,7 +130,7 @@ const Manager = () => {
         autoClose={4000}
         hideProgressBar={false}
         newestOnTop={false}
-        closeOnClick={true}
+        closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
@@ -155,7 +155,6 @@ const Manager = () => {
             onChange={handleChange}
             placeholder="Enter Website URL"
           />
-
           <input
             className="rounded-full border border-green-500 w-full py-2 px-4"
             type="text"
@@ -217,89 +216,73 @@ const Manager = () => {
                 </tr>
               </thead>
               <tbody className="bg-green-200 w-full">
-                {passwordArray.map((item, index) => {
-                  return (
-                    <tr key={index} className="border-2 border-white w-full">
-                      <td className="p-[4px]">
-                        <div
-                          className="flex items-center justify-center gap-[4px] cursor-pointer"
-                          onClick={() => {
-                            copyText(item.site);
-                          }}
-                        >
-                          <span className="w-[50px] overflow-auto">
-                            {item.site}
-                          </span>
+                {passwordArray.map((item, index) => (
+                  <tr key={index} className="border-2 border-white w-full">
+                    <td className="p-[4px]">
+                      <div
+                        className="flex items-center justify-center gap-[4px] cursor-pointer"
+                        onClick={() => copyText(item.site)}
+                      >
+                        <span className="w-[50px] overflow-auto">
+                          {item.site}
+                        </span>
+                        <lord-icon
+                          src="https://cdn.lordicon.com/depeqmsz.json"
+                          trigger="hover"
+                          style={{ width: "18px", cursor: "pointer" }}
+                        ></lord-icon>
+                      </div>
+                    </td>
+                    <td className="p-[4px]">
+                      <div
+                        className="flex items-center justify-center gap-[4px] cursor-pointer"
+                        onClick={() => copyText(item.username)}
+                      >
+                        <span className="w-[50px] overflow-auto">
+                          {item.username}
+                        </span>
+                        <lord-icon
+                          src="https://cdn.lordicon.com/depeqmsz.json"
+                          trigger="hover"
+                          style={{ width: "18px", cursor: "pointer" }}
+                        ></lord-icon>
+                      </div>
+                    </td>
+                    <td className="p-[4px]">
+                      <div
+                        className="flex items-center justify-center gap-[4px] cursor-pointer"
+                        onClick={() => copyText(item.password)}
+                      >
+                        <span className="w-[50px] overflow-auto">
+                          {"*".repeat(item.password.length)}
+                        </span>
+                        <lord-icon
+                          src="https://cdn.lordicon.com/depeqmsz.json"
+                          trigger="hover"
+                          style={{ width: "18px", cursor: "pointer" }}
+                        ></lord-icon>
+                      </div>
+                    </td>
+                    <td className="p-[4px]">
+                      <div className="flex items-center justify-center gap-[4px] cursor-pointer mx-auto">
+                        <span onClick={() => editPassword(item.id)}>
                           <lord-icon
-                            src="https://cdn.lordicon.com/depeqmsz.json"
+                            src="https://cdn.lordicon.com/dafdkyyt.json"
                             trigger="hover"
                             style={{ width: "18px", cursor: "pointer" }}
                           ></lord-icon>
-                        </div>
-                      </td>
-                      <td className="p-[4px]">
-                        <div
-                          className="flex items-center justify-center gap-[4px] cursor-pointer"
-                          onClick={() => {
-                            copyText(item.username);
-                          }}
-                        >
-                          <span className="w-[50px] overflow-auto">
-                            {item.username}
-                          </span>
+                        </span>
+                        <span onClick={() => deletePassword(item.id)}>
                           <lord-icon
-                            src="https://cdn.lordicon.com/depeqmsz.json"
+                            src="https://cdn.lordicon.com/skkahier.json"
                             trigger="hover"
                             style={{ width: "18px", cursor: "pointer" }}
                           ></lord-icon>
-                        </div>
-                      </td>
-                      <td className="p-[4px]">
-                        <div
-                          className="flex items-center justify-center gap-[4px] cursor-pointer"
-                          onClick={() => {
-                            copyText(item.password);
-                          }}
-                        >
-                          <span className="w-[50px] overflow-auto">
-                            {"*".repeat(item.password.length)}
-                          </span>
-                          <lord-icon
-                            src="https://cdn.lordicon.com/depeqmsz.json"
-                            trigger="hover"
-                            style={{ width: "18px", cursor: "pointer" }}
-                          ></lord-icon>
-                        </div>
-                      </td>
-                      <td className="p-[4px]">
-                        <div className="flex items-center justify-center gap-[4px] cursor-pointer mx-auto">
-                          <span
-                            onClick={() => {
-                              editPassword(item.id); // Fixed this line
-                            }}
-                          >
-                            <lord-icon
-                              src="https://cdn.lordicon.com/dafdkyyt.json"
-                              trigger="hover"
-                              style={{ width: "18px", cursor: "pointer" }}
-                            ></lord-icon>
-                          </span>
-                          <span
-                            onClick={() => {
-                              deletePassword(item.id); // Fixed this line
-                            }}
-                          >
-                            <lord-icon
-                              src="https://cdn.lordicon.com/skkahier.json"
-                              trigger="hover"
-                              style={{ width: "18px", cursor: "pointer" }}
-                            ></lord-icon>
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
