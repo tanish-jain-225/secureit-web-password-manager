@@ -13,7 +13,7 @@ const Manager = () => {
   const [passwordArray, setpasswordArray] = useState([]);
   const port = 3000;
   const serverType = "http"
-  const passwordLink = `${serverType}://localhost:${port}/`;
+  const passwordLink = `https://secureit-web-password-manager-backend.vercel.app/`;
 
   const getPasswords = async () => {
     let req = await fetch(`${passwordLink}`);
