@@ -1,79 +1,56 @@
 require("dotenv").config();
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const bodyParser = require("body-parser");
+const bodyparser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
+const serverType = "http";
 const port = 3000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyparser.json());
 
-// MongoDB Connection
-const url = process.env.MONGO_URI;
+// Connection URL
+const url = process.env.MONGO_URI
+const client = new MongoClient(url);
+client.connect();
 const dbName = "secureit";
-const collectionName = "passwords";
+const passwords = "passwords"
 
-async function connectToDatabase() {
-  const client = new MongoClient(url);
-  await client.connect();
-  return client;
-}
-
-// Get all passwords
+// get all passwords
 app.get("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const passwords = await collection.find({}).toArray();
-    res.json(passwords);
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.find({}).toArray();
+  res.json(findResult);
 });
 
-// Save a password
+// post password by save
 app.post("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const password = req.body;
-    const result = await collection.insertOne(password);
-
-    res.json({ success: true, result });
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const password = req.body;
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.insertOne(password);
+  res.send({ success: true, result: findResult });
 });
 
-// Delete a password (ensure correct structure)
+// delete a password
 app.delete("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const { _id } = req.body;
-    if (!_id) {
-      return res.status(400).json({ error: "Missing _id field for deletion" });
-    }
-
-    const result = await collection.deleteOne({ _id });
-    res.json({ success: result.deletedCount > 0, result });
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const password = req.body;
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.deleteOne(password);
+  res.send({ success: true, result: findResult });
 });
 
-// Start the server (not needed for Vercel, but fine for local testing)
+// Listen on port get app
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  console.log(
+    `App listening on port ${port} -`,
+    `${serverType}://localhost:${port}`
+  );
 });
