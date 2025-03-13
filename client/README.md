@@ -1,4 +1,4 @@
-# SecureIt Mongodb Version
+# SecureIt Mongodb Version - Local
 
 - Add 'SecureIt_MongoDb' file in your computer.
 - Open terminal in 'server'. Use command 'cd .\server\'.
