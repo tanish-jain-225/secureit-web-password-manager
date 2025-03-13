@@ -8,13 +8,7 @@ const app = express();
 const serverType = "http";
 const port = 3000;
 
-// Update CORS configuration
-const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(bodyparser.json());
 
 // Connection URL
