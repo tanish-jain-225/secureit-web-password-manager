@@ -1,82 +1,56 @@
 require("dotenv").config();
 const express = require("express");
 const { MongoClient } = require("mongodb");
-const bodyParser = require("body-parser");
+const bodyparser = require("body-parser");
 const cors = require("cors");
 
 const app = express();
+const serverType = "http";
+const port = 3000;
 
-app.use(cors(
-  {
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  }
-));
+app.use(cors());
+app.use(bodyparser.json());
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// MongoDB Connection
-const url = process.env.MONGO_URI;
+// Connection URL
+const url = process.env.MONGO_URI
+const client = new MongoClient(url);
+client.connect();
 const dbName = "secureit";
-const collectionName = "passwords";
+const passwords = "passwords"
 
-async function connectToDatabase() {
-  const client = new MongoClient(url);
-  await client.connect();
-  return client;
-}
-
-// Get all passwords
+// get all passwords
 app.get("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const passwords = await collection.find({}).toArray();
-    res.json(passwords);
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.find({}).toArray();
+  res.json(findResult);
 });
 
-// Save a password
+// post password by save
 app.post("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const password = req.body;
-    const result = await collection.insertOne(password);
-
-    res.json({ success: true, result });
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const password = req.body;
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.insertOne(password);
+  res.send({ success: true, result: findResult });
 });
 
-// Delete a password
+// delete a password
 app.delete("/", async (req, res) => {
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-
-    const password = req.body;
-    const result = await collection.deleteOne(password);
-
-    res.json({ success: true, result });
-    await client.close();
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
-  }
+  // mongo process
+  const password = req.body;
+  const db = client.db(dbName);
+  const collection = db.collection(passwords);
+  const findResult = await collection.deleteOne(password);
+  res.send({ success: true, result: findResult });
 });
 
-// Export the app for Vercel
-module.exports = app;
+// Listen on port get app
+app.listen(port, () => {
+  console.log(
+    `App listening on port ${port} -`,
+    `${serverType}://localhost:${port}`
+  );
+});
