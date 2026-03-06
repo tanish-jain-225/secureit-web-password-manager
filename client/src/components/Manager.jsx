@@ -1,4 +1,4 @@
-// Imports 
+// Imports
 import React, { useEffect } from "react";
 import { useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -11,8 +11,7 @@ const Manager = () => {
   const passwordRef = useRef();
   const [form, setform] = useState({ site: "", username: "", password: "" });
   const [passwordArray, setpasswordArray] = useState([]);
-  const port = 3000;
-  const serverType = "http"
+  const serverType = "http";
   const passwordLink = `https://secureit-web-password-manager-backend.vercel.app/`;
 
   const getPasswords = async () => {
@@ -36,7 +35,11 @@ const Manager = () => {
   };
 
   const savePassword = async () => {
-    if (form.site.length > 0 && form.username.length > 0 && form.password.length > 0) {
+    if (
+      form.site.length > 0 &&
+      form.username.length > 0 &&
+      form.password.length > 0
+    ) {
       const newPassword = { ...form, id: uuidv4() };
       setpasswordArray([...passwordArray, newPassword]);
 
@@ -201,9 +204,7 @@ const Manager = () => {
           </button>
         </div>
         <div className="passwords w-full p-[2px]">
-          <h2 className="font-bold text-xl py-4 text-center">
-            Your Passwords
-          </h2>
+          <h2 className="font-bold text-xl py-4 text-center">Your Passwords</h2>
           {passwordArray.length === 0 && (
             <div className="text-center py-2">"No Passwords To Show"</div>
           )}
